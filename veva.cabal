@@ -15,7 +15,10 @@ library
   ghc-options:         -Wall
   exposed-modules:     Veva.User.Types,
                        Veva.User.Queries,
-                       Veva.User
+                       Veva.User,
+                       Veva.Status,
+                       Veva.Status.Types,
+                       Veva.Status.Queries
   build-depends:       hasql-postgres == 0.10.*,
                        email-validate == 2.0.*,
                        hasql-backend  == 0.4.*,

@@ -24,22 +24,22 @@ CREATE FUNCTION on_record_update() RETURNS trigger AS $$
   END;
 $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION insert_user(addr TEXT, pass TEXT) RETURNS SETOF users AS $$
-  BEGIN
-    RETURN QUERY
-      INSERT INTO users (email, password)
-      VALUES (addr, crypt(pass, gen_salt('bf', 8)))
-      RETURNING id, email, password, created_at, updated_at;
-    EXCEPTION WHEN unique_violation THEN
-  END;
-$$ LANGUAGE plpgsql;
-
 -- the User resource
 
 CREATE TABLE users (
   id           UUID       PRIMARY KEY,
   email        VARCHAR    NOT NULL UNIQUE,
   password     VARCHAR    NOT NULL,
+  created_at   TIMESTAMP  NOT NULL,
+  updated_at   TIMESTAMP  NOT NULL
+);
+
+-- the Status resource
+
+CREATE TABLE statuses (
+  id           UUID       PRIMARY KEY,
+  user_id      UUID       NOT NULL,
+  content      CHAR(144)  NOT NULL,
   created_at   TIMESTAMP  NOT NULL,
   updated_at   TIMESTAMP  NOT NULL
 );
@@ -51,5 +51,15 @@ CREATE TRIGGER users_insert
 
 CREATE TRIGGER users_update
   BEFORE UPDATE ON users
+  FOR EACH ROW
+  EXECUTE PROCEDURE on_record_update();
+
+CREATE TRIGGER statuses_insert
+  BEFORE INSERT ON statuses
+  FOR EACH ROW
+  EXECUTE PROCEDURE on_record_insert();
+
+CREATE TRIGGER statuses_update
+  BEFORE UPDATE ON statuses
   FOR EACH ROW
   EXECUTE PROCEDURE on_record_update();
