@@ -20,7 +20,7 @@ import GHC.Generics        (Generic)
 import Data.Functor        ((<$>))
 import Data.Aeson          (FromJSON(..), ToJSON(..), Value(..), withText)
 import Data.Time           (UTCTime)
-import Data.Text           (Text, pack)
+import Data.Text           (pack)
 import Data.UUID           (UUID)
 
 newtype Id = Id { unId :: UUID }
