@@ -2,6 +2,7 @@
     GeneralizedNewtypeDeriving
   , MultiParamTypeClasses
   , DeriveGeneric
+  , DeriveDataTypeable
   #-}
 
 module Veva.User.Types
@@ -13,21 +14,51 @@ module Veva.User.Types
 import Text.Email.Validate (EmailAddress, emailAddress, toByteString, validate)
 import Data.Text.Encoding  (encodeUtf8, decodeUtf8)
 import Data.Aeson.Types    (typeMismatch)
+import Data.JSON.Schema
 import Data.UUID.Aeson     ()
 import Hasql.Postgres      (Postgres)
 import Hasql.Backend       (CxValue(..))
+import Data.Typeable       (Typeable)
 import GHC.Generics        (Generic)
 import Data.Functor        ((<$>))
+import Rest.ShowUrl        (ShowUrl)
 import Data.Aeson          (FromJSON(..), ToJSON(..), Value(..), withText)
 import Data.Time           (UTCTime)
 import Data.Text           (pack)
 import Data.UUID           (UUID)
+import Rest.Info           (Info(..))
 
 newtype Id = Id { unId :: UUID }
-    deriving (FromJSON, ToJSON, Generic, CxValue Postgres)
+    deriving ( Eq
+             , Show
+             , FromJSON
+             , ToJSON
+             , Generic
+             , CxValue Postgres
+             , ShowUrl
+             , Typeable
+             )
+
+instance Info Id where
+    describe _ = "userId"
+
+instance Read Id where
+    readsPrec d r = map f (readsPrec d r) where f (i, s) = (Id i, s)
+
+instance JSONSchema Id where
+    schema _ = Value LengthBound
+        { lowerLength = Just 18
+        , upperLength = Just 18
+        }
 
 newtype Email = Email { unEmail :: EmailAddress }
-    deriving (Generic)
+    deriving (Eq, Show, Generic, Typeable)
+
+instance Read Email where
+    readsPrec d r = map f (readsPrec d r) where f (i, s) = (Email i, s)
+
+instance Info Email where
+    describe _ = "email"
 
 instance FromJSON Email where
     parseJSON v = Email <$> withText name go v where
@@ -46,12 +77,15 @@ instance CxValue Postgres Email where
         Left l -> Left (pack $ l ++ show x)
         Right r -> Right (Email r)
 
+instance JSONSchema Email where schema _ = Value unboundedLength
+
 data User = User
     { id         :: Id
     , email      :: Email
     , created_at :: UTCTime
     , updated_at :: UTCTime
-    } deriving (Generic)
+    } deriving (Eq, Show, Generic, Typeable)
 
-instance FromJSON User
-instance ToJSON   User
+instance FromJSON   User
+instance ToJSON     User
+instance JSONSchema User where schema = gSchema
