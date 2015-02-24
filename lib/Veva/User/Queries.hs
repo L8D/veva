@@ -15,14 +15,14 @@ import qualified Veva.User as User
 
 findUserById :: User.Id -> forall s. Tx Postgres s (Maybe User)
 findUserById uid = fmap fromRow <$> maybeEx q where q = [stmt|
-        SELECT id, email, password, created_at, updated_at
+        SELECT id, email, created_at, updated_at
         FROM users
         WHERE id = ?
     |] uid
 
 listUsers :: Int -> Int -> forall s. Tx Postgres s [User]
 listUsers o l = fmap fromRow <$> listEx q where q = [stmt|
-        SELECT id, email, password, created_at, updated_at
+        SELECT id, email, created_at, updated_at
         FROM users
         OFFSET ?
         LIMIT ?
