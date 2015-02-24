@@ -18,7 +18,7 @@ import           Rest.Info
 import           Rest.ShowUrl
 import qualified Rest.Resource as R
 
-data Identifier = ById User.Id | ByEmail User.Email
+data Identifier = ById User.Id
     deriving (Eq, Show, Read, Typeable)
 
 instance Info Identifier where
@@ -26,7 +26,6 @@ instance Info Identifier where
 
 instance ShowUrl Identifier where
     showUrl (ById uid)    = showUrl uid
-    showUrl (ByEmail eml) = show eml -- TODO
 
 type WithUser = ReaderT Identifier VevaApi
 
@@ -34,7 +33,6 @@ resource :: Resource VevaApi WithUser Identifier () Void
 resource = mkResourceReader
     { R.name   = "users"
     , R.schema = withListing () $ named [ ("id", singleRead ById)
-                                        , ("email", singleRead ByEmail)
                                         ]
     , R.list   = const list
     , R.get    = Just get
@@ -50,4 +48,3 @@ get = mkIdHandler jsonO handler where
     handler :: () -> Identifier -> ExceptT Reason_ WithUser User.User
     handler _ (ById uid) = lift (lift $ query $ findUserById uid)
         >>= maybe (throwError NotFound) return
-    handler _ (ByEmail _) = throwError UnsupportedMethod -- TODO

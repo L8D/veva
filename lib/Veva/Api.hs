@@ -3,7 +3,8 @@ module Veva.Api
     , api
     ) where
 
-import qualified Veva.User.Resource as User
+import qualified Veva.User.Resource   as User
+import qualified Veva.Status.Resource as Status
 import           Veva.Api.Types
 
 import Rest.Api
@@ -13,5 +14,9 @@ api = [(mkVersion 1 0 0, Some1 router)]
 
 router :: Router VevaApi VevaApi
 router =
-    root -/ user
-    where user = route User.resource
+    root
+        -/ users
+        -/ statuses
+    where
+        users = route User.resource
+        statuses = route Status.resource

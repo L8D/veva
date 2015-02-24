@@ -2,6 +2,7 @@
 
 module Veva.Status.Queries
     ( findStatusById
+    , listStatuses
     , listStatusesByUserId
     ) where
 
@@ -21,12 +22,23 @@ findStatusById sid = fmap fromRow <$> maybeEx q where q = [stmt|
         WHERE id = ?
     |] sid
 
-listStatusesByUserId :: User.Id -> forall s. Tx Postgres s [Status]
-listStatusesByUserId uid = fmap fromRow <$> listEx q where q = [stmt|
+listStatuses :: Int -> Int -> forall s. Tx Postgres s [Status]
+listStatuses o l = fmap fromRow <$> listEx q where q = [stmt|
+        SELECT id, user_id, content, created_at, updated_at
+        FROM statuses
+        OFFSET ?
+        LIMIT ?
+    |] o l
+
+listStatusesByUserId :: User.Id -> Int -> Int ->
+                        forall s. Tx Postgres s [Status]
+listStatusesByUserId uid o l = fmap fromRow <$> listEx q where q = [stmt|
         SELECT id, user_id, content, created_at, updated_at
         FROM statuses
         WHERE user_id = ?
-    |] uid
+        OFFSET ?
+        LIMIT ?
+    |] uid o l
 
 fromRow :: (Status.Id, User.Id, Status.Content, UTCTime, UTCTime) -> Status
 fromRow (sid, uid, cnt, cat, uat) = Status.Status sid uid cnt cat uat
