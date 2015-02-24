@@ -5,7 +5,7 @@ module Veva.User.Resource
     ) where
 
 import Control.Monad.Reader (ReaderT)
-import Control.Monad.Except (ExceptT)
+import Control.Monad.Except (ExceptT, throwError)
 import Control.Monad.Trans  (lift)
 import Data.Typeable        (Typeable)
 
@@ -37,9 +37,17 @@ resource = mkResourceReader
                                         , ("email", singleRead ByEmail)
                                         ]
     , R.list   = const list
+    , R.get    = Just get
     }
 
 list :: ListHandler VevaApi
 list = mkListing jsonO handler where
     handler :: Range -> ExceptT Reason_ VevaApi [User.User]
     handler r = lift $ query (listUsers (offset r) (count r))
+
+get :: Handler WithUser
+get = mkIdHandler jsonO handler where
+    handler :: () -> Identifier -> ExceptT Reason_ WithUser User.User
+    handler _ (ById uid) = lift (lift $ query $ findUserById uid)
+        >>= maybe (throwError NotFound) return
+    handler _ (ByEmail _) = throwError UnsupportedMethod -- TODO
