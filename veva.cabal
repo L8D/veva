@@ -20,7 +20,8 @@ library
                        Veva.Status,
                        Veva.Status.Types,
                        Veva.Status.Queries,
-                       Veva.Api.Types
+                       Veva.Api.Types,
+                       Veva.Api
   build-depends:       happstack-server == 7.4.*,
                        hasql-postgres   == 0.10.*,
                        email-validate   == 2.0.*,
