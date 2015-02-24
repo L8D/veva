@@ -47,8 +47,8 @@ instance Read Id where
 
 instance JSONSchema Id where
     schema _ = Value LengthBound
-        { lowerLength = Just 18
-        , upperLength = Just 18
+        { lowerLength = Just 36
+        , upperLength = Just 36
         }
 
 newtype Email = Email { unEmail :: EmailAddress }
