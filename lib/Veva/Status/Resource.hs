@@ -22,7 +22,7 @@ import qualified Rest.Resource as R
 data Identifier = ById Status.Id
     deriving (Eq, Show, Read, Typeable)
 
-data Listing = All | OfUserId User.Id
+data Listing = All | ByAuthorId User.Id
     deriving (Eq, Show, Read, Typeable)
 
 instance Info Identifier where
@@ -36,7 +36,7 @@ instance Info Listing where
 
 instance ShowUrl Listing where
     showUrl All            = "all"
-    showUrl (OfUserId uid) = show uid
+    showUrl (ByAuthorId uid) = show uid
 
 type WithStatus = ReaderT Identifier VevaApi
 
@@ -44,7 +44,7 @@ resource :: Resource VevaApi WithStatus Identifier Listing Void
 resource = mkResourceReader
     { R.name   = "statuses"
     , R.schema = withListing All $ named [ ("id", singleRead ById)
-                                         , ("user", listingRead OfUserId)
+                                         , ("user", listingRead ByAuthorId)
                                          ]
     , R.list   = list
     , R.get    = Just get
@@ -56,7 +56,7 @@ list l = mkListing jsonO handler where
     handler r = lift $ query (f (offset r) (count r)) where
         f = case l of
             All -> listStatuses
-            OfUserId uid -> listStatusesByUserId uid
+            ByAuthorId uid -> listStatusesByUserId uid
 
 get :: Handler WithStatus
 get = mkIdHandler jsonO handler where
