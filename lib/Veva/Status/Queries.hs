@@ -40,6 +40,6 @@ listStatusesByUserId uid o l = fmap fromRow <$> listEx q where q = [stmt|
         LIMIT ?
     |] uid o l
 
-fromRow :: (Status.Id, Status.Owner, Status.Content, UTCTime, UTCTime)
+fromRow :: (Status.Id, Status.Author, Status.Content, UTCTime, UTCTime)
            -> Status
 fromRow (sid, own, cnt, cat, uat) = Status.Status sid own cnt cat uat

@@ -8,7 +8,7 @@
 module Veva.Status.Types
     ( Status(..)
     , Id(..)
-    , Owner(..)
+    , Author(..)
     , Content(..)
     ) where
 
@@ -51,16 +51,16 @@ instance JSONSchema Id where
 instance Read Id where
     readsPrec d r = map f (readsPrec d r) where f (i, s) = (Id i, s)
 
-newtype Owner = Owner { ownerId :: User.Id }
+newtype Author = Author { authorId :: User.Id }
     deriving (Eq, Show, Generic, CxValue Postgres, Typeable)
 
-instance FromJSON Owner where
-    parseJSON = withObject "Owner" $ \o -> Owner <$> o .: "id"
+instance FromJSON Author where
+    parseJSON = withObject "Author" $ \o -> Author <$> o .: "id"
 
-instance ToJSON Owner where
-    toJSON (Owner uid) = object ["id" .= toJSON uid]
+instance ToJSON Author where
+    toJSON (Author uid) = object ["id" .= toJSON uid]
 
-instance JSONSchema Owner where
+instance JSONSchema Author where
     schema _ = Object [Field "id" True (schema (Proxy :: Proxy User.Id))]
 
 newtype Content = Content { unContent :: Text }
@@ -74,7 +74,7 @@ instance JSONSchema Content where
 
 data Status = Status
     { id         :: Id
-    , owner      :: Owner
+    , author     :: Author
     , content    :: Content
     , created_at :: UTCTime
     , updated_at :: UTCTime

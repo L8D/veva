@@ -38,7 +38,7 @@ CREATE TABLE users (
 
 CREATE TABLE statuses (
   id           UUID          PRIMARY KEY,
-  owner_id     UUID          NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  author_id    UUID          NOT NULL REFERENCES users (id) ON DELETE CASCADE,
   content      VARCHAR(144)  NOT NULL,
   created_at   TIMESTAMP     NOT NULL,
   updated_at   TIMESTAMP     NOT NULL
