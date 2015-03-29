@@ -3,6 +3,7 @@
   , MultiParamTypeClasses
   , DeriveGeneric
   , DeriveDataTypeable
+  , OverloadedStrings
   #-}
 
 module Veva.User.Types
@@ -11,8 +12,10 @@ module Veva.User.Types
     , Email(..)
     ) where
 
-import Text.Email.Validate (EmailAddress, emailAddress, toByteString, validate)
+import Data.Attoparsec.ByteString (parse, IResult(..))
+import Text.Email.Validate
 import Data.Text.Encoding  (encodeUtf8, decodeUtf8)
+import Text.Email.Parser   (addrSpec)
 import Data.Aeson.Types    (typeMismatch)
 import Data.JSON.Schema
 import Data.UUID.Aeson     ()
@@ -21,12 +24,14 @@ import Hasql.Backend       (CxValue(..))
 import Data.Typeable       (Typeable)
 import GHC.Generics        (Generic)
 import Data.Functor        ((<$>))
-import Rest.ShowUrl        (ShowUrl)
+import Rest.ShowUrl        (ShowUrl(..))
 import Data.Aeson          (FromJSON(..), ToJSON(..), Value(..), withText)
 import Data.Time           (UTCTime)
 import Data.Text           (pack)
 import Data.UUID           (UUID)
 import Rest.Info           (Info(..))
+
+import qualified Data.ByteString.Char8 as BS
 
 newtype Id = Id { unId :: UUID }
     deriving ( Eq
@@ -55,10 +60,16 @@ newtype Email = Email { unEmail :: EmailAddress }
     deriving (Eq, Show, Generic, Typeable)
 
 instance Read Email where
-    readsPrec d r = map f (readsPrec d r) where f (i, s) = (Email i, s)
+    readsPrec _ s = go $ parse addrSpec (BS.pack s) where
+        go (Fail _ _ _) = []
+        go (Partial f)  = go (f "")
+        go (Done r adr)   = [(Email adr, BS.unpack r)]
 
 instance Info Email where
     describe _ = "email"
+
+instance ShowUrl Email where
+    showUrl = show
 
 instance FromJSON Email where
     parseJSON v = Email <$> withText name go v where

@@ -29,6 +29,8 @@ library
                        hasql-backend    == 0.4.*,
                        json-schema      == 0.7.3.*,
                        uuid-aeson       == 0.1.*,
+                       attoparsec       == 0.12.*,
+                       bytestring       == 0.10.*,
                        rest-core        == 0.35.*,
                        aeson            == 0.8.*,
                        hasql            == 0.7.*,
