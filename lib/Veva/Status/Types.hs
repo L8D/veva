@@ -2,11 +2,13 @@
     GeneralizedNewtypeDeriving
   , DeriveGeneric
   , DeriveDataTypeable
+  , OverloadedStrings
   #-}
 
 module Veva.Status.Types
     ( Status(..)
     , Id(..)
+    , Owner(..)
     , Content(..)
     ) where
 
@@ -15,9 +17,10 @@ import Data.UUID.Aeson     ()
 import Hasql.Postgres      (Postgres)
 import Hasql.Backend       (CxValue)
 import Data.Typeable       (Typeable)
+import Data.Functor        ((<$>))
 import GHC.Generics        (Generic)
 import Rest.ShowUrl        (ShowUrl)
-import Data.Aeson          (FromJSON, ToJSON)
+import Data.Aeson          hiding (Value(..))
 import Rest.Info           (Info(..))
 import Data.Time           (UTCTime)
 import Data.Text           (Text)
@@ -48,6 +51,18 @@ instance JSONSchema Id where
 instance Read Id where
     readsPrec d r = map f (readsPrec d r) where f (i, s) = (Id i, s)
 
+newtype Owner = Owner { ownerId :: User.Id }
+    deriving (Eq, Show, Generic, CxValue Postgres, Typeable)
+
+instance FromJSON Owner where
+    parseJSON = withObject "Owner" $ \o -> Owner <$> o .: "id"
+
+instance ToJSON Owner where
+    toJSON (Owner uid) = object ["id" .= toJSON uid]
+
+instance JSONSchema Owner where
+    schema _ = Object [Field "id" True (schema (Proxy :: Proxy User.Id))]
+
 newtype Content = Content { unContent :: Text }
     deriving (Eq, Show, FromJSON, ToJSON, Generic, CxValue Postgres, Typeable)
 
@@ -59,7 +74,7 @@ instance JSONSchema Content where
 
 data Status = Status
     { id         :: Id
-    , user_id    :: User.Id
+    , owner      :: Owner
     , content    :: Content
     , created_at :: UTCTime
     , updated_at :: UTCTime
