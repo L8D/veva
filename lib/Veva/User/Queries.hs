@@ -2,6 +2,7 @@
 
 module Veva.User.Queries
     ( findUserById
+    , findUserByEmail
     , listUsers
     ) where
 
@@ -19,6 +20,13 @@ findUserById uid = fmap fromRow <$> maybeEx q where q = [stmt|
         FROM users
         WHERE id = ?
     |] uid
+
+findUserByEmail :: User.Email -> forall s. Tx Postgres s (Maybe User)
+findUserByEmail adr = fmap fromRow <$> maybeEx q where q = [stmt|
+        SELECT id, email, created_at, updated_at
+        FROM users
+        WHERE email = ?
+    |] adr
 
 listUsers :: Int -> Int -> forall s. Tx Postgres s [User]
 listUsers o l = fmap fromRow <$> listEx q where q = [stmt|

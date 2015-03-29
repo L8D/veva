@@ -5,7 +5,7 @@ module Veva.User.Resource
     ) where
 
 import Control.Monad.Reader (ReaderT)
-import Control.Monad.Except (ExceptT, throwError)
+import Control.Monad.Except (ExceptT)
 import Control.Monad.Trans  (lift)
 import Data.Typeable        (Typeable)
 
@@ -18,7 +18,7 @@ import           Rest.Info
 import           Rest.ShowUrl
 import qualified Rest.Resource as R
 
-data Identifier = ById User.Id
+data Identifier = ById User.Id | ByEmail User.Email
     deriving (Eq, Show, Read, Typeable)
 
 instance Info Identifier where
@@ -26,6 +26,7 @@ instance Info Identifier where
 
 instance ShowUrl Identifier where
     showUrl (ById uid)    = showUrl uid
+    showUrl (ByEmail adr) = showUrl adr
 
 type WithUser = ReaderT Identifier VevaApi
 
@@ -33,6 +34,7 @@ resource :: Resource VevaApi WithUser Identifier () Void
 resource = mkResourceReader
     { R.name   = "users"
     , R.schema = withListing () $ named [ ("id", singleRead ById)
+                                        , ("email", singleRead ByEmail)
                                         ]
     , R.list   = const list
     , R.get    = Just get
@@ -46,5 +48,7 @@ list = mkListing jsonO handler where
 get :: Handler WithUser
 get = mkIdHandler jsonO handler where
     handler :: () -> Identifier -> ExceptT Reason_ WithUser User.User
-    handler _ (ById uid) = lift (lift $ query $ findUserById uid)
-        >>= maybe (throwError NotFound) return
+    handler _ idnt = lift (lift $ query $ q idnt) `orThrow` NotFound
+
+    q (ById uid)    = findUserById uid
+    q (ByEmail adr) = findUserByEmail adr
