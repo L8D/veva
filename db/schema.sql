@@ -27,11 +27,11 @@ $$ LANGUAGE plpgsql;
 -- the User resource
 
 CREATE TABLE users (
-  id           UUID       PRIMARY KEY,
-  email        VARCHAR    NOT NULL UNIQUE,
-  password     VARCHAR    NOT NULL,
-  created_at   TIMESTAMP  NOT NULL,
-  updated_at   TIMESTAMP  NOT NULL
+  id           UUID         PRIMARY KEY,
+  email        CITEXT       NULL UNIQUE,
+  password     VARCHAR      NOT NULL,
+  created_at   TIMESTAMP    NOT NULL,
+  updated_at   TIMESTAMP    NOT NULL
 );
 
 -- the Status resource
