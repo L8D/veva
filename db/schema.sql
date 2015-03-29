@@ -37,11 +37,11 @@ CREATE TABLE users (
 -- the Status resource
 
 CREATE TABLE statuses (
-  id           UUID       PRIMARY KEY,
-  user_id      UUID       NOT NULL,
-  content      CHAR(144)  NOT NULL,
-  created_at   TIMESTAMP  NOT NULL,
-  updated_at   TIMESTAMP  NOT NULL
+  id           UUID          PRIMARY KEY,
+  owner_id     UUID          NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  content      VARCHAR(144)  NOT NULL,
+  created_at   TIMESTAMP     NOT NULL,
+  updated_at   TIMESTAMP     NOT NULL
 );
 
 CREATE TRIGGER users_insert
