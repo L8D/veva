@@ -17,14 +17,14 @@ import qualified Veva.User   as User
 
 findStatusById :: Status.Id -> forall s. Tx Postgres s (Maybe Status)
 findStatusById sid = fmap fromRow <$> maybeEx q where q = [stmt|
-        SELECT id, user_id, content, created_at, updated_at
+        SELECT id, author_id, content, created_at, updated_at
         FROM statuses
         WHERE id = ?
     |] sid
 
 listStatuses :: Int -> Int -> forall s. Tx Postgres s [Status]
 listStatuses o l = fmap fromRow <$> listEx q where q = [stmt|
-        SELECT id, user_id, content, created_at, updated_at
+        SELECT id, author_id, content, created_at, updated_at
         FROM statuses
         OFFSET ?
         LIMIT ?
@@ -33,7 +33,7 @@ listStatuses o l = fmap fromRow <$> listEx q where q = [stmt|
 listStatusesByUserId :: User.Id -> Int -> Int ->
                         forall s. Tx Postgres s [Status]
 listStatusesByUserId uid o l = fmap fromRow <$> listEx q where q = [stmt|
-        SELECT id, user_id, content, created_at, updated_at
+        SELECT id, author_id, content, created_at, updated_at
         FROM statuses
         WHERE user_id = ?
         OFFSET ?
