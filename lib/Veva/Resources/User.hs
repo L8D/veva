@@ -9,8 +9,10 @@ import Control.Monad.Except (ExceptT)
 import Control.Monad.Trans  (lift)
 import Data.Typeable        (Typeable)
 
-import           Veva.Types.Api    (VevaApi, query)
-import qualified Veva.Queries.User as User
+import Veva.Types.Api     (VevaApi, query)
+import Veva.Types.NewUser (NewUser)
+
+import qualified Veva.Queries.User  as User
 
 import           Rest
 import           Rest.Info
@@ -37,6 +39,7 @@ resource = mkResourceReader
                                         ]
     , R.list   = const list
     , R.get    = Just get
+    , R.create = Just create
     }
 
 list :: ListHandler VevaApi
@@ -51,3 +54,8 @@ get = mkIdHandler jsonO handler where
 
     q (ById uid)    = User.findById uid
     q (ByEmail adr) = User.findByEmail adr
+
+create :: Handler VevaApi
+create = mkInputHandler (jsonE . jsonI . jsonO) handler where
+    handler :: NewUser -> ExceptT Reason_ VevaApi User.User
+    handler nu = lift (query $ User.new nu) `orThrow` NotAllowed

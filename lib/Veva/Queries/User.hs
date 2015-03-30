@@ -5,6 +5,7 @@ module Veva.Queries.User
     , findById
     , findByEmail
     , listRange
+    , new
     ) where
 
 import Data.Functor   ((<$>))
@@ -13,6 +14,7 @@ import Data.Time      (UTCTime)
 import Hasql          (Tx, maybeEx, listEx, stmt)
 
 import Veva.Types.User
+import Veva.Types.NewUser (NewUser(NewUser))
 
 findById :: Id -> forall s. Tx Postgres s (Maybe User)
 findById uid = fmap fromRow <$> maybeEx q where q = [stmt|
@@ -35,6 +37,11 @@ listRange o l = fmap fromRow <$> listEx q where q = [stmt|
         OFFSET ?
         LIMIT ?
     |] o l
+
+new :: NewUser -> forall s. Tx Postgres s (Maybe User)
+new (NewUser adr pass) = fmap fromRow <$> maybeEx q where q = [stmt|
+        SELECT insert_user(?, ?)
+    |] adr pass
 
 fromRow :: (Id, Email, UTCTime, UTCTime) -> User
 fromRow (i, e, c, u) = User i e c u

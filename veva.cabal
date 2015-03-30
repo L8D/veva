@@ -13,6 +13,7 @@ library
   exposed-modules:     Veva.Types.User,
                        Veva.Types.Status,
                        Veva.Types.Api,
+                       Veva.Types.NewUser,
                        Veva.Queries.User,
                        Veva.Queries.Status,
                        Veva.Resources.User,
