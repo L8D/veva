@@ -5,7 +5,7 @@
   , OverloadedStrings
   #-}
 
-module Veva.Status.Types
+module Veva.Types.Status
     ( Status(..)
     , Id(..)
     , Author(..)
@@ -26,7 +26,7 @@ import Data.Time           (UTCTime)
 import Data.Text           (Text)
 import Data.UUID           (UUID)
 
-import qualified Veva.User as User
+import qualified Veva.Types.User as User
 
 newtype Id = Id { unId :: UUID }
     deriving ( Eq

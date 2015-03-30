@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module Veva.Status.Resource
+module Veva.Resources.Status
     ( resource
     ) where
 
@@ -9,10 +9,9 @@ import Control.Monad.Except (ExceptT, throwError)
 import Control.Monad.Trans  (lift)
 import Data.Typeable        (Typeable)
 
-import           Veva.Api.Types      (VevaApi, query)
-import           Veva.Status.Queries
-import qualified Veva.Status.Types   as Status
-import qualified Veva.User.Types     as User
+import           Veva.Types.Api      (VevaApi, query)
+import qualified Veva.Queries.Status as Status
+import qualified Veva.Queries.User   as User
 
 import           Rest
 import           Rest.Info
@@ -55,11 +54,11 @@ list l = mkListing jsonO handler where
     handler :: Range -> ExceptT Reason_ VevaApi [Status.Status]
     handler r = lift $ query (f (offset r) (count r)) where
         f = case l of
-            All -> listStatuses
-            ByAuthorId uid -> listStatusesByUserId uid
+            All -> Status.listRange
+            ByAuthorId uid -> Status.listByUserId uid
 
 get :: Handler WithStatus
 get = mkIdHandler jsonO handler where
     handler :: () -> Identifier -> ExceptT Reason_ WithStatus Status.Status
-    handler _ (ById sid) = lift (lift $ query $ findStatusById sid)
+    handler _ (ById sid) = lift (lift $ query $ Status.findById sid)
         >>= maybe (throwError NotFound) return

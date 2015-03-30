@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving, RankNTypes #-}
 
-module Veva.Api.Types
+module Veva.Types.Api
     ( VevaApi(..)
     , query
     ) where

@@ -1,11 +1,11 @@
 module Veva.Api
-    ( module Veva.Api.Types
+    ( module Veva.Types.Api
     , api
     ) where
 
-import qualified Veva.User.Resource   as User
-import qualified Veva.Status.Resource as Status
-import           Veva.Api.Types
+import qualified Veva.Resources.User   as User
+import qualified Veva.Resources.Status as Status
+import           Veva.Types.Api
 
 import Rest.Api
 

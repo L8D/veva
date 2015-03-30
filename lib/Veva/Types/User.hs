@@ -6,7 +6,7 @@
   , OverloadedStrings
   #-}
 
-module Veva.User.Types
+module Veva.Types.User
     ( User(..)
     , Id(..)
     , Email(..)

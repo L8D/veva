@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module Veva.User.Resource
+module Veva.Resources.User
     ( resource
     ) where
 
@@ -9,9 +9,8 @@ import Control.Monad.Except (ExceptT)
 import Control.Monad.Trans  (lift)
 import Data.Typeable        (Typeable)
 
-import           Veva.Api.Types    (VevaApi, query)
-import           Veva.User.Queries
-import qualified Veva.User.Types   as User
+import           Veva.Types.Api    (VevaApi, query)
+import qualified Veva.Queries.User as User
 
 import           Rest
 import           Rest.Info
@@ -43,12 +42,12 @@ resource = mkResourceReader
 list :: ListHandler VevaApi
 list = mkListing jsonO handler where
     handler :: Range -> ExceptT Reason_ VevaApi [User.User]
-    handler r = lift $ query (listUsers (offset r) (count r))
+    handler r = lift $ query $ User.listRange (offset r) (count r)
 
 get :: Handler WithUser
 get = mkIdHandler jsonO handler where
     handler :: () -> Identifier -> ExceptT Reason_ WithUser User.User
     handler _ idnt = lift (lift $ query $ q idnt) `orThrow` NotFound
 
-    q (ById uid)    = findUserById uid
-    q (ByEmail adr) = findUserByEmail adr
+    q (ById uid)    = User.findById uid
+    q (ByEmail adr) = User.findByEmail adr
