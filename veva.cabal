@@ -11,6 +11,8 @@ cabal-version:       >=1.10
 library
   ghc-options:         -Wall
   exposed-modules:     Veva.Types.User,
+                       Veva.Types.User.Id,
+                       Veva.Types.User.Email,
                        Veva.Types.Status,
                        Veva.Types.Api,
                        Veva.Types.NewUser,
