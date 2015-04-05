@@ -1,9 +1,6 @@
 {-# LANGUAGE
-    GeneralizedNewtypeDeriving
-  , MultiParamTypeClasses
-  , DeriveGeneric
+    DeriveGeneric
   , DeriveDataTypeable
-  , OverloadedStrings
   #-}
 
 module Veva.Types.User
